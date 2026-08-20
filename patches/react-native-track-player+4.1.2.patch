@@ -1,0 +1,62 @@
+diff --git a/node_modules/react-native-track-player/android/.gradle/9.2.0/checksums/checksums.lock b/node_modules/react-native-track-player/android/.gradle/9.2.0/checksums/checksums.lock
+new file mode 100644
+index 0000000..6a7a16e
+Binary files /dev/null and b/node_modules/react-native-track-player/android/.gradle/9.2.0/checksums/checksums.lock differ
+diff --git a/node_modules/react-native-track-player/android/.gradle/9.2.0/fileChanges/last-build.bin b/node_modules/react-native-track-player/android/.gradle/9.2.0/fileChanges/last-build.bin
+new file mode 100644
+index 0000000..f76dd23
+Binary files /dev/null and b/node_modules/react-native-track-player/android/.gradle/9.2.0/fileChanges/last-build.bin differ
+diff --git a/node_modules/react-native-track-player/android/.gradle/9.2.0/fileHashes/fileHashes.bin b/node_modules/react-native-track-player/android/.gradle/9.2.0/fileHashes/fileHashes.bin
+new file mode 100644
+index 0000000..b76abd0
+Binary files /dev/null and b/node_modules/react-native-track-player/android/.gradle/9.2.0/fileHashes/fileHashes.bin differ
+diff --git a/node_modules/react-native-track-player/android/.gradle/9.2.0/fileHashes/fileHashes.lock b/node_modules/react-native-track-player/android/.gradle/9.2.0/fileHashes/fileHashes.lock
+new file mode 100644
+index 0000000..98f85fd
+Binary files /dev/null and b/node_modules/react-native-track-player/android/.gradle/9.2.0/fileHashes/fileHashes.lock differ
+diff --git a/node_modules/react-native-track-player/android/.gradle/9.2.0/gc.properties b/node_modules/react-native-track-player/android/.gradle/9.2.0/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-track-player/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock b/node_modules/react-native-track-player/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+new file mode 100644
+index 0000000..354d77d
+Binary files /dev/null and b/node_modules/react-native-track-player/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock differ
+diff --git a/node_modules/react-native-track-player/android/.gradle/buildOutputCleanup/cache.properties b/node_modules/react-native-track-player/android/.gradle/buildOutputCleanup/cache.properties
+new file mode 100644
+index 0000000..83d18e7
+--- /dev/null
++++ b/node_modules/react-native-track-player/android/.gradle/buildOutputCleanup/cache.properties
+@@ -0,0 +1,2 @@
++#Thu Aug 20 00:25:36 BDT 2026
++gradle.version=9.2.0
+diff --git a/node_modules/react-native-track-player/android/.gradle/vcs-1/gc.properties b/node_modules/react-native-track-player/android/.gradle/vcs-1/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
+index b2409a0..64ad989 100644
+--- a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
++++ b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
+@@ -545,7 +545,8 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+         if (verifyServiceBoundOrReject(callback)) return@launch
+ 
+         if (index >= 0 && index < musicService.tracks.size) {
+-            callback.resolve(Arguments.fromBundle(musicService.tracks[index].originalItem))
++            val item = musicService.tracks[index].originalItem
++            callback.resolve(item?.let { Arguments.fromBundle(it) })
+         } else {
+             callback.resolve(null)
+         }
+@@ -584,9 +585,10 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+         if (verifyServiceBoundOrReject(callback)) return@launch
+         callback.resolve(
+             if (musicService.tracks.isEmpty()) null
+-            else Arguments.fromBundle(
+-                musicService.tracks[musicService.getCurrentTrackIndex()].originalItem
+-            )
++            else {
++                val item = musicService.tracks[musicService.getCurrentTrackIndex()].originalItem
++                item?.let { Arguments.fromBundle(it) }
++            }
+         )
+     }
+ 
