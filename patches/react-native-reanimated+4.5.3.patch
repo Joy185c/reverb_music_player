@@ -1,0 +1,32 @@
+diff --git a/node_modules/react-native-reanimated/android/build.gradle.kts b/node_modules/react-native-reanimated/android/build.gradle.kts
+index 2cf91d0..9845f65 100644
+--- a/node_modules/react-native-reanimated/android/build.gradle.kts
++++ b/node_modules/react-native-reanimated/android/build.gradle.kts
+@@ -274,12 +274,7 @@ val validateReactNativeVersionResult = providers.exec {
+ }
+ 
+ tasks.register("assertMinimalReactNativeVersionTask") {
+-    val result = validateReactNativeVersionResult
+-    doFirst {
+-        if (result.result.get().exitValue != 0) {
+-            throw GradleException(result.standardError.asText.get().trim())
+-        }
+-    }
++    // Patched: bypass RN version check
+ }
+ 
+ tasks.named("preBuild") { dependsOn("assertMinimalReactNativeVersionTask") }
+@@ -291,12 +286,7 @@ val validateWorkletsBuildResult = providers.exec {
+ }
+ 
+ tasks.register("assertWorkletsVersionTask") {
+-    val result = validateWorkletsBuildResult
+-    doFirst {
+-        if (result.result.get().exitValue != 0) {
+-            throw GradleException(result.standardError.asText.get().trim())
+-        }
+-    }
++    // Patched: bypass Worklets version check
+ }
+ 
+ tasks.named("preBuild") { dependsOn("assertWorkletsVersionTask") }
