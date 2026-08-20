@@ -53,4 +53,13 @@ export async function playbackService() {
       usePlayerStore.setState({ isPlaying: false });
     }
   });
+
+  // Background Sleep Timer Monitor
+  setInterval(() => {
+    const endTime = usePlayerStore.getState().sleepTimerEndTime;
+    if (endTime && Date.now() >= endTime) {
+      TrackPlayer.pause();
+      usePlayerStore.getState().cancelSleepTimer();
+    }
+  }, 10000); // Check every 10 seconds
 }

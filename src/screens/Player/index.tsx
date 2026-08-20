@@ -6,16 +6,59 @@ import { ChevronDown, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat } from
 import { colors } from '../../theme/colors';
 import { useProgress } from 'react-native-track-player';
 
+import { SleepTimerModal } from '../../components/SleepTimerModal';
+
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 };
 
+const formatRemainingTime = (ms: number) => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
+
+import { useLibraryStore, useIsFavorite } from '../../store/libraryStore';
+
+const FavoriteButton = ({ songId }: { songId: string }) => {
+  const isFavorite = useIsFavorite(songId);
+  const toggle = useLibraryStore(s => s.toggleFavoriteStatus);
+  return (
+    <TouchableOpacity onPress={() => toggle(songId, isFavorite)} className="p-2">
+      <Text className={isFavorite ? "text-accent text-2xl" : "text-secondaryText text-2xl"}>
+        {isFavorite ? '❤️' : '🤍'}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
 export const Player = () => {
-  const { activeTrack, isPlaying, pause, resume, skipToNext, skipToPrevious, seekTo, toggleShuffle, toggleRepeat, isShuffle, repeatMode } = usePlayerStore();
+  const { activeTrack, isPlaying, pause, resume, skipToNext, skipToPrevious, seekTo, toggleShuffle, toggleRepeat, isShuffle, repeatMode, sleepTimerEndTime } = usePlayerStore();
   const navigation = useNavigation();
   const { position, duration } = useProgress();
+  
+  const [timerModalVisible, setTimerModalVisible] = React.useState(false);
+  const [timeRemainingStr, setTimeRemainingStr] = React.useState('');
+
+  React.useEffect(() => {
+    let interval: any;
+    if (sleepTimerEndTime) {
+      interval = setInterval(() => {
+        const remaining = sleepTimerEndTime - Date.now();
+        if (remaining > 0) {
+          setTimeRemainingStr(formatRemainingTime(remaining));
+        } else {
+          setTimeRemainingStr('');
+        }
+      }, 1000);
+    } else {
+      setTimeRemainingStr('');
+    }
+    return () => clearInterval(interval);
+  }, [sleepTimerEndTime]);
 
   const progressPercent = duration > 0 ? (position / duration) * 100 : 0;
 
@@ -24,7 +67,7 @@ export const Player = () => {
       <View className="px-6 pt-4 flex-1">
         
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-10">
+        <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ChevronDown color={colors.primaryText} size={28} />
           </TouchableOpacity>
@@ -32,8 +75,21 @@ export const Player = () => {
           <View style={{ width: 28 }} />
         </View>
 
+        {/* Timer Display */}
+        <View className="items-center mb-6 h-8 justify-center">
+          {sleepTimerEndTime ? (
+            <TouchableOpacity onPress={() => setTimerModalVisible(true)} className="bg-surface px-4 py-1.5 rounded-full flex-row items-center">
+              <Text className="text-accent font-medium text-xs">Sleep Timer · {timeRemainingStr} remaining</Text>
+            </TouchableOpacity>
+          ) : (
+             <TouchableOpacity onPress={() => setTimerModalVisible(true)} className="px-4 py-1.5">
+               <Text className="text-secondaryText text-xs font-medium">Set Sleep Timer</Text>
+             </TouchableOpacity>
+          )}
+        </View>
+
         {/* Artwork */}
-        <View className="w-full aspect-square bg-surface rounded-3xl mb-12 items-center justify-center overflow-hidden">
+        <View className="w-full aspect-square bg-surface rounded-3xl mb-8 items-center justify-center overflow-hidden">
           {activeTrack?.artwork ? (
             <Image source={{ uri: activeTrack.artwork }} style={{ width: '100%', height: '100%' }} />
           ) : (
@@ -42,25 +98,25 @@ export const Player = () => {
         </View>
 
         {/* Info */}
-        <View className="mb-8">
-          <Text className="text-primaryText text-2xl font-bold mb-1" numberOfLines={1}>
-            {activeTrack?.title || 'Not Playing'}
-          </Text>
-          <Text className="text-accent text-lg" numberOfLines={1}>
-            {activeTrack?.artist || 'Unknown Artist'}
-          </Text>
+        <View className="mb-8 flex-row items-center justify-between">
+          <View className="flex-1 mr-4">
+            <Text className="text-primaryText text-2xl font-bold mb-1" numberOfLines={1}>
+              {activeTrack?.title || 'Not Playing'}
+            </Text>
+            <Text className="text-accent text-lg" numberOfLines={1}>
+              {activeTrack?.artist || 'Unknown Artist'}
+            </Text>
+          </View>
+          {activeTrack && (
+            <FavoriteButton songId={activeTrack.id} />
+          )}
         </View>
 
         {/* Progress */}
         <View className="mb-10">
           <TouchableOpacity 
             activeOpacity={0.8}
-            onPress={(e) => {
-              // Basic seek logic: assumes full width tap
-              // A real slider component (like @react-native-community/slider) is better for production, 
-              // but this is a placeholder for custom touch logic.
-              // We'll leave it as non-seekable in this iteration unless using a Slider.
-            }}
+            onPress={(e) => {}}
           >
             <View className="h-1 bg-surface rounded-full w-full mb-2">
                <View className="h-full bg-accent rounded-full" style={{ width: `${progressPercent}%` }} />
@@ -103,6 +159,7 @@ export const Player = () => {
         </View>
 
       </View>
+      <SleepTimerModal visible={timerModalVisible} onClose={() => setTimerModalVisible(false)} />
     </SafeAreaView>
   );
 };

@@ -30,11 +30,38 @@ export const getAllPlaylists = async (): Promise<Playlist[]> => {
 
 export const addSongToPlaylist = async (playlistId: string, songId: string, position: number): Promise<void> => {
   const db = await getDB();
-  await db.executeSql('INSERT INTO playlist_songs (playlistId, songId, position) VALUES (?, ?, ?)', [
-    playlistId,
-    songId,
-    position,
-  ]);
+  
+  // Prevent duplicate
+  const [existing] = await db.executeSql(
+    'SELECT 1 FROM playlist_songs WHERE playlistId = ? AND songId = ? LIMIT 1', 
+    [playlistId, songId]
+  );
+  
+  if (existing.rows.length === 0) {
+    await db.executeSql('INSERT INTO playlist_songs (playlistId, songId, position) VALUES (?, ?, ?)', [
+      playlistId,
+      songId,
+      position,
+    ]);
+  }
+};
+
+export const removeSongFromPlaylist = async (playlistId: string, songId: string): Promise<void> => {
+  const db = await getDB();
+  await db.executeSql('DELETE FROM playlist_songs WHERE playlistId = ? AND songId = ?', [playlistId, songId]);
+};
+
+export const deletePlaylist = async (playlistId: string): Promise<void> => {
+  const db = await getDB();
+  await db.transaction((tx) => {
+    tx.executeSql('DELETE FROM playlist_songs WHERE playlistId = ?', [playlistId]);
+    tx.executeSql('DELETE FROM playlists WHERE id = ?', [playlistId]);
+  });
+};
+
+export const updatePlaylistName = async (playlistId: string, newName: string): Promise<void> => {
+  const db = await getDB();
+  await db.executeSql('UPDATE playlists SET name = ?, updatedAt = ? WHERE id = ?', [newName, Date.now(), playlistId]);
 };
 
 export const getSongsForPlaylist = async (playlistId: string): Promise<Song[]> => {

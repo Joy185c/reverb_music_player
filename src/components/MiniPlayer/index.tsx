@@ -5,6 +5,19 @@ import { useNavigation } from '@react-navigation/native';
 import { Play, Pause } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 import { useProgress } from 'react-native-track-player';
+import { useLibraryStore, useIsFavorite } from '../../store/libraryStore';
+
+const FavoriteButton = ({ songId }: { songId: string }) => {
+  const isFavorite = useIsFavorite(songId);
+  const toggle = useLibraryStore(s => s.toggleFavoriteStatus);
+  return (
+    <TouchableOpacity onPress={() => toggle(songId, isFavorite)} className="p-2 mr-1">
+      <Text className={isFavorite ? "text-accent text-lg" : "text-secondaryText text-lg"}>
+        {isFavorite ? '❤️' : '🤍'}
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 export const MiniPlayer = () => {
   const { activeTrack, isPlaying, pause, resume } = usePlayerStore();
@@ -36,6 +49,8 @@ export const MiniPlayer = () => {
           <Text className="text-secondaryText text-xs mt-1" numberOfLines={1}>{activeTrack.artist}</Text>
         </View>
 
+        <FavoriteButton songId={activeTrack.id} />
+        
         <TouchableOpacity 
           onPress={isPlaying ? pause : resume}
           className="w-10 h-10 justify-center items-center mr-2"

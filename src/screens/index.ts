@@ -3,3 +3,4 @@ export * from './Library';
 export * from './Search';
 export * from './Settings';
 export * from './Player';
+export * from './AddLink';

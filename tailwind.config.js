@@ -8,8 +8,8 @@ module.exports = {
         background: '#081A14',
         surface: '#0D241C',
         accent: '#F5C518',
-        primary: '#FFFFFF',
-        secondary: '#9BAAA4'
+        primaryText: '#FFFFFF',
+        secondaryText: '#9BAAA4'
       }
     },
   },

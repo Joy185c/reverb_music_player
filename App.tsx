@@ -7,6 +7,10 @@ import { initFileSystem } from './src/services/filesystem';
 import { setupPlayer } from './src/services/audio/PlayerService';
 import { colors } from './src/theme/colors';
 
+import { useSettingsStore } from './src/store/settingsStore';
+
+import { syncDeviceMusic } from './src/services/MediaStoreService';
+
 function App() {
   const [isReady, setIsReady] = useState(false);
 
@@ -15,6 +19,8 @@ function App() {
       try {
         await initFileSystem();
         await initDB();
+        await useSettingsStore.getState().loadSettings();
+        await syncDeviceMusic();
         await setupPlayer();
         setIsReady(true);
       } catch (e) {

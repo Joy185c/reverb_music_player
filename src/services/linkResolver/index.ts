@@ -15,6 +15,7 @@ export interface ResolvedLinkMetadata {
 }
 
 import { YouTubeProvider } from './providers/YouTubeProvider';
+import { DirectAudioProvider } from './providers/DirectAudioProvider';
 
 const providers: LinkProvider[] = [];
 
@@ -24,6 +25,7 @@ export const registerProvider = (provider: LinkProvider) => {
 
 // Register default providers
 registerProvider(new YouTubeProvider());
+registerProvider(new DirectAudioProvider());
 
 export const resolveLink = async (url: string): Promise<ResolvedLinkMetadata> => {
   for (const provider of providers) {

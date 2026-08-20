@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home, Library, Search, Settings, Player } from '../screens';
+import { Home, Library, Search, Settings, Player, AddLink } from '../screens';
 import { colors } from '../theme/colors';
 import { Home as HomeIcon, Library as LibraryIcon, Search as SearchIcon, Settings as SettingsIcon } from 'lucide-react-native';
 import { View } from 'react-native';
@@ -53,6 +53,8 @@ const TabNavigator = () => {
 };
 
 import { MiniPlayer } from '../components/MiniPlayer';
+import { DownloadsOverlay } from '../components/DownloadsOverlay';
+import { PlaylistDetails } from '../screens/PlaylistDetails';
 
 export const RootNavigator = () => {
   return (
@@ -61,9 +63,12 @@ export const RootNavigator = () => {
         <Stack.Navigator screenOptions={{ headerShown: false, presentation: 'modal' }}>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="Player" component={Player} options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="AddLink" component={AddLink} options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="PlaylistDetails" component={PlaylistDetails} options={{ presentation: 'card', animation: 'slide_from_right' }} />
         </Stack.Navigator>
+        <DownloadsOverlay />
+        <MiniPlayer />
       </NavigationContainer>
-      <MiniPlayer />
     </View>
   );
 };

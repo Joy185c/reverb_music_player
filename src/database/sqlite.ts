@@ -86,6 +86,14 @@ export const initDB = async (): Promise<void> => {
           completedAt INTEGER
         )
       `);
+
+      // 6. Settings Table
+      tx.executeSql(`
+        CREATE TABLE IF NOT EXISTS settings (
+          key TEXT PRIMARY KEY,
+          value TEXT
+        )
+      `);
     });
 
     console.log('Database initialized successfully');

@@ -16,17 +16,38 @@ interface PlayerState {
   seekTo: (position: number) => Promise<void>;
   toggleShuffle: () => void;
   toggleRepeat: () => Promise<void>;
+  sleepTimerEndTime: number | null;
+  setSleepTimer: (minutes: number) => void;
+  cancelSleepTimer: () => void;
 }
 
-const convertSongToTrack = (song: Song): Track => ({
-  id: song.id,
-  url: 'file://' + song.localPath,
-  title: song.title,
-  artist: song.artist,
-  album: song.album,
-  artwork: song.artworkPath ? 'file://' + song.artworkPath : undefined,
-  duration: song.duration / 1000,
-});
+const convertSongToTrack = (song: Song): Track => {
+  let url = 'file://' + song.localPath;
+  if (song.sourceUrl && song.sourceUrl.startsWith('content://')) {
+    url = song.sourceUrl;
+  } else if (song.sourceType === 'remote' && song.sourceUrl) {
+    url = song.sourceUrl;
+  }
+    
+  let artwork = undefined;
+  if (song.artworkPath) {
+    if (song.artworkPath.startsWith('http://') || song.artworkPath.startsWith('https://') || song.artworkPath.startsWith('content://')) {
+      artwork = song.artworkPath;
+    } else {
+      artwork = 'file://' + song.artworkPath;
+    }
+  }
+
+  return {
+    id: song.id,
+    url,
+    title: song.title,
+    artist: song.artist,
+    album: song.album,
+    artwork,
+    duration: song.duration / 1000,
+  };
+};
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   isPlaying: false,
@@ -100,5 +121,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     
     await TrackPlayer.setRepeatMode(next);
     set({ repeatMode: next });
+  },
+
+  sleepTimerEndTime: null,
+  
+  setSleepTimer: (minutes: number) => {
+    const endTime = Date.now() + minutes * 60 * 1000;
+    set({ sleepTimerEndTime: endTime });
+  },
+  
+  cancelSleepTimer: () => {
+    set({ sleepTimerEndTime: null });
   }
 }));
